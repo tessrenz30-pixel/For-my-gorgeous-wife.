@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For My Dearest Lyncee ♡</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Fredoka:wght@400;500;600&family=VT323&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background-color: #ffe5ec;
+      background-image: 
+        radial-gradient(#ffb3c6 1.5px, transparent 1.5px), 
+        radial-gradient(#ffb3c6 1.5px, #ffe5ec 1.5px);
+      background-size: 30px 30px;
+      background-position: 0 0, 15px 15px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    .pixel-font {
+      font-family: 'VT323', monospace;
+    }
+
+    .cursive-font {
+      font-family: 'Dancing Script', cursive;
+    }
+
+    /* Background Ambient Floating Hearts */
+    .bg-heart {
+      position: absolute;
+      color: #ff85a1;
+      opacity: 0.35;
+      pointer-events: none;
+      animation: hintpulse 3s infinite ease-in-out;
+    }
+
+    @keyframes hintpulse {
+      0%, 100% { opacity: 0.35; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.18); }
+    }
+
+    /* Window CSS matching screenshot code */
+    .window {
+      opacity: 0;
+      transform: scale(0.85);
+      visibility: hidden;
+      transition: opacity 0.4s ease, transform 0.55s var(--ease), visibility 0.4s ease;
+    }
+
+    .window.is-open {
+      opacity: 1;
+      transform: scale(1);
+      visibility: visible;
+    }
+
+    /* Window UI Card Design */
+    .pink-window {
+      background-color: #fff0f5;
+      border: 3.5px solid #ff758f;
+      box-shadow: 0 12px 30px -5px rgba(255, 117, 143, 0.45), inset 0 0 0 2px #ffffff;
+      border-radius: 20px;
+    }
+
+    .window-header {
+      background: linear-gradient(90deg, #ff85a1, #f72585);
+      border-bottom: 2.5px solid #ff758f;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+    }
+
+    .window-body {
+      background-color: #fff5f8;
+      background-image: 
+        linear-gradient(rgba(255, 182, 193, 0.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 182, 193, 0.22) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+
+    /* Cat & Floating Hearts matching screenshot CSS */
+    .cat-heart {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      z-index: 3;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .content.is-won .cat-heart {
+      opacity: 1;
+      animation: floatHeart 1.8s ease-in-out infinite;
+    }
+
+    @keyframes floatHeart {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-14px) scale(1.25); }
+    }
+
+    /* Button Styles */
+    .btn-yes {
+      background: linear-gradient(180deg, #ff758f 0%, #ff4d6d 100%);
+      border: 2px solid #c9184a;
+      box-shadow: 0 4px 0 #a4133c;
+      transition: all 0.2s var(--ease);
+    }
+
+    .btn-yes:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 0 #a4133c;
+    }
+
+    .btn-yes:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #a4133c;
+    }
+
+    .btn-no {
+      background: #ffffff;
+      border: 2px solid #ff85a1;
+      color: #ff4d6d;
+      box-shadow: 0 4px 0 #ffb3c6;
+      transition: all 0.15s ease-out;
+    }
+
+    /* Scrollbar Styling for Love Letter */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #ffe5ec;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #ff85a1;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative">
+
+  <div id="bg-hearts-container" class="absolute inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+  <!-- MAIN PROPOSAL WINDOW -->
+  <div id="proposal-window" class="window pink-window w-full max-w-sm sm:max-w-md relative z-10 overflow-hidden my-auto">
+    <!-- Header Titlebar -->
+    <div class="window-header px-4 py-2.5 flex items-center justify-between text-white select-none">
+      <div class="flex items-center gap-2">
+        <span class="pixel-font text-2xl tracking-widest font-bold">LOVE</span>
+      </div>
+      <div class="flex items-center space-x-1.5">
+        <button class="w-4 h-4 rounded-full bg-pink-300 hover:bg-pink-200 border border-pink-400 flex items-center justify-center text-[9px] font-bold text-pink-700">─</button>
+        <button class="w-4 h-4 rounded-full bg-pink-300 hover:bg-pink-200 border border-pink-400 flex items-center justify-center text-[8px] font-bold text-pink-700">□</button>
+        <button class="w-4 h-4 rounded-full bg-rose-400 hover:bg-rose-500 border border-rose-600 flex items-center justify-center text-[9px] font-bold text-white">✕</button>
+      </div>
+    </div>
+
+    <!-- Window Body Content -->
+    <div id="window-content" class="content window-body p-6 flex flex-col items-center justify-center text-center min-h-[380px] relative">
+      
+      <!-- Top Decorative Hearts -->
+      <div class="flex gap-2 text-rose-400 text-sm mb-2">
+        <span class="animate-pulse">♥</span>
+        <span class="animate-ping">♥</span>
+        <span class="animate-pulse">♥</span>
+      </div>
+
+      <!-- Main Proposal Title -->
+      <h1 id="main-title" class="text-2xl sm:text-3xl font-semibold text-rose-600 mb-5 leading-tight transition-all duration-300">
+        You want to read my love letter? ♡
+      </h1>
+
+      <!-- Cat Container with Floating Hearts (.cat-heart matching CSS from screenshot) -->
+      <div class="relative my-3 group">
+        <div class="cat-heart -top-6 left-2 text-rose-500 text-xl">💖</div>
+        <div class="cat-heart -top-8 right-2 text-rose-500 text-lg" style="animation-delay: 0.4s;">💕</div>
+        <div class="cat-heart -top-4 -right-6 text-rose-400 text-base" style="animation-delay: 0.8s;">❤️</div>
+
+        <!-- SVG Pixel Cat holding Heart -->
+        <div class="w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center transform transition-transform duration-300 hover:scale-105">
+          <svg viewBox="0 0 32 32" class="w-full h-full drop-shadow-md" style="image-rendering: pixelated;">
+            <!-- Ears -->
+            <rect x="7" y="6" width="3" height="4" fill="#2b2d42"/>
+            <rect x="8" y="7" width="1" height="2" fill="#ffb703"/>
+            <rect x="22" y="6" width="3" height="4" fill="#2b2d42"/>
+            <rect x="23" y="7" width="1" height="2" fill="#ffb703"/>
+            <!-- Head -->
+            <rect x="6" y="9" width="20" height="11" fill="#2b2d42"/>
+            <!-- Eyes -->
+            <rect x="9" y="12" width="4" height="4" fill="#ffffff"/>
+            <rect x="11" y="13" width="2" height="3" fill="#000000"/>
+            <rect x="19" y="12" width="4" height="4" fill="#ffffff"/>
+            <rect x="19" y="13" width="2" height="3" fill="#000000"/>
+            <!-- Cheeks -->
+            <rect x="7" y="15" width="2" height="2" fill="#ff85a1" opacity="0.8"/>
+            <rect x="23" y="15" width="2" height="2" fill="#ff85a1" opacity="0.8"/>
+            <!-- Nose -->
+            <rect x="15" y="15" width="2" height="1" fill="#ff85a1"/>
+            <!-- Body & Paws -->
+            <rect x="7" y="20" width="18" height="8" fill="#2b2d42"/>
+            <rect x="9" y="28" width="4" height="2" fill="#2b2d42"/>
+            <rect x="19" y="28" width="4" height="2" fill="#2b2d42"/>
+            <!-- Pixel Red Heart -->
+            <path d="M 12,18 H 15 V 19 H 17 V 18 H 20 V 21 H 21 V 23 H 20 V 25 H 18 V 26 H 16 V 27 H 16 V 26 H 14 V 25 H 12 V 23 H 11 V 21 H 12 Z" fill="#d90429"/>
+            <path d="M 13,19 H 14 V 21 H 13 Z" fill="#ff758f"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Initial Buttons -->
+      <div id="button-area" class="mt-5 flex items-center justify-center gap-4 min-h-[60px] w-full relative">
+        <button id="yes-btn" class="btn-yes text-white font-bold px-8 py-2.5 rounded-xl text-lg sm:text-xl tracking-wide cursor-pointer transform active:scale-95 z-10">
+          YES
+        </button>
+        <button id="no-btn" class="btn-no font-bold px-8 py-2.5 rounded-xl text-lg sm:text-xl tracking-wide cursor-pointer relative transition-all z-10">
+          NO
+        </button>
+      </div>
+
+      <!-- Action button to open love letter (shows after YES animation) -->
+      <div id="read-letter-area" class="mt-5 hidden flex-col items-center">
+        <button id="open-letter-btn" class="btn-yes text-white font-bold px-8 py-3 rounded-2xl text-lg sm:text-xl tracking-wide cursor-pointer animate-bounce flex items-center gap-2 shadow-lg">
+          ✉️ Read Love Letter
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LOVE LETTER MODAL -->
+  <div id="letter-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-pink-900/30 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-500 p-3 sm:p-6 overflow-y-auto">
+    
+    <div id="letter-card" class="pink-window max-w-lg w-full p-6 sm:p-8 text-left transform scale-90 transition-all duration-500 max-h-[90vh] flex flex-col relative my-auto">
+      
+      <!-- Letter Header -->
+      <div class="flex items-center justify-between border-b-2 border-pink-200 pb-3 mb-4">
+        <div class="flex items-center gap-2 text-rose-500 font-bold text-lg">
+          <span>💌</span>
+          <span class="pixel-font text-2xl tracking-wider">A Special Letter</span>
+        </div>
+        <div class="text-xs text-pink-400 font-medium">To: Lyncee ♡</div>
+      </div>
+
+      <!-- Letter Body Text -->
+      <div class="custom-scrollbar overflow-y-auto pr-2 space-y-4 text-rose-900 text-sm sm:text-base leading-relaxed">
+        <p class="font-bold text-lg text-rose-600 cursive-font text-2xl">To my dearest Lyncee,</p>
+        
+        <p>As I sit down to write this, you are the only thing on my mind and in my heart. Even though there are miles between us and I can’t hold you or be by your side every day, I want to remind you that my love for you never fades, not even for a second.</p>
+        
+        <p>I know being long-distance isn't easy. There are days when I miss you so much—your voice, your laugh, and simply having you next to me. But whenever I think about how strong we are together and how much we mean to each other, all the doubt and sadness just disappear. It only proves to me that you are worth every bit of the distance and every single second of waiting.</p>
+        
+        <p>Thank you for being my comfort, even if it's through a screen or a message. Thank you for your trust, your warmth, and the love you show me every day, no matter how far away you are. You give me so much motivation, knowing that one day the distance will finally be gone, and we won't have to say goodbye at the end of a phone call anymore.</p>
+        
+        <p>Please take care of yourself and make sure you eat well, okay? We're in this together, hand in hand, no matter the physical distance. Nothing changes I will keep choosing you every single day.</p>
+        
+        <p class="font-semibold text-rose-600">I love you so much, Lyncee. Can't wait until I see you again.</p>
+        
+        <div class="pt-2 text-right">
+          <p class="cursive-font text-2xl text-rose-500 font-bold">With all my love,</p>
+          <p class="font-bold text-rose-700 text-lg">Renz ❤️</p>
+        </div>
+      </div>
+
+      <!-- Letter Reply Prompt Section -->
+      <div class="mt-6 pt-4 border-t-2 border-pink-200 text-center flex flex-col items-center bg-pink-50/60 p-4 rounded-xl">
+        <h3 id="reply-prompt-title" class="text-rose-600 font-bold text-base sm:text-lg mb-3">
+          Reply my love letter? 💬✨
+        </h3>
+
+        <div id="reply-buttons" class="flex items-center justify-center gap-4 relative min-h-[50px] w-full">
+          <button id="reply-yes-btn" class="btn-yes text-white font-bold px-6 py-2 rounded-xl text-sm sm:text-base cursor-pointer">
+            YES! 💕
+          </button>
+          <button id="reply-no-btn" class="btn-no font-bold px-6 py-2 rounded-xl text-sm sm:text-base cursor-pointer relative transition-all">
+            NO 😜
+          </button>
+        </div>
+
+        <!-- Hidden Reply Input Box (Appears when YES is clicked) -->
+        <div id="reply-input-box" class="hidden w-full flex-col gap-2 mt-2">
+          <textarea id="reply-text" rows="3" class="w-full p-3 rounded-xl border-2 border-pink-300 focus:outline-none focus:border-rose-500 text-rose-900 text-sm bg-white placeholder-pink-300 shadow-inner" placeholder="Write your sweet message for Renz here... ♡"></textarea>
+          <div class="flex gap-2">
+            <button id="send-reply-btn" class="btn-yes text-white font-bold py-2 px-4 rounded-xl text-sm flex-1 cursor-pointer">
+              Send Message 💌
+            </button>
+            <button id="close-modal-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl text-sm cursor-pointer">
+              Close
+            </button>
+          </div>
+        </div>
+
+        <div id="reply-sent-msg" class="hidden text-rose-600 font-bold text-sm py-2">
+          Your response has been copied/sent! I love you so much, Lyncee! 💖
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const proposalWindow = document.getElementById('proposal-window');
+      const windowContent = document.getElementById('window-content');
+      const mainTitle = document.getElementById('main-title');
+      const yesBtn = document.getElementById('yes-btn');
+      const noBtn = document.getElementById('no-btn');
+      const buttonArea = document.getElementById('button-area');
+      const readLetterArea = document.getElementById('read-letter-area');
+      const openLetterBtn = document.getElementById('open-letter-btn');
+
+      const letterModal = document.getElementById('letter-modal');
+      const letterCard = document.getElementById('letter-card');
+      const replyYesBtn = document.getElementById('reply-yes-btn');
+      const replyNoBtn = document.getElementById('reply-no-btn');
+      const replyButtons = document.getElementById('reply-buttons');
+      const replyInputBox = document.getElementById('reply-input-box');
+      const sendReplyBtn = document.getElementById('send-reply-btn');
+      const replyText = document.getElementById('reply-text');
+      const replySentMsg = document.getElementById('reply-sent-msg');
+      const closeModalBtn = document.getElementById('close-modal-btn');
+
+      /* 1. Open Window Entrance */
+      setTimeout(() => {
+        proposalWindow.classList.add('is-open');
+      }, 150);
+
+      /* 2. Spawn Ambient Background Floating Hearts */
+      const bgHeartsContainer = document.getElementById('bg-hearts-container');
+      const heartSymbols = ['♥', '♡', '💕', '💖', '✨'];
+      for (let i = 0; i < 22; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'bg-heart';
+        heart.innerText = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+        heart.style.left = `${Math.random() * 100}%`;
+        heart.style.top = `${Math.random() * 100}%`;
+        heart.style.animationDelay = `${Math.random() * 3}s`;
+        heart.style.fontSize = `${Math.floor(Math.random() * 14) + 12}px`;
+        bgHeartsContainer.appendChild(heart);
+      }
+
+      /* 3. Evasive 'NO' Button dodge logic */
+      let yesScale = 1;
+      let noClickCount = 0;
+      const noMessages = ["NO", "Are you sure?", "Think again! 🥺", "Really no?", "Don't do this!", "You can't say no! 💕"];
+
+      function dodgeNoButton(btn) {
+        noClickCount++;
+        yesScale += 0.15;
+        yesBtn.style.transform = `scale(${yesScale})`;
+
+        if (noClickCount < noMessages.length) {
+          btn.innerText = noMessages[noClickCount];
+        }
+
+        const parent = btn.offsetParent || document.body;
+        const maxX = 120;
+        const maxY = 60;
+        const randomX = (Math.random() - 0.5) * maxX * 2;
+        const randomY = (Math.random() - 0.5) * maxY * 2;
+
+        btn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+      }
+
+      noBtn.addEventListener('mouseenter', () => dodgeNoButton(noBtn));
+      noBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        dodgeNoButton(noBtn);
+      });
+
+      /* 4. Initial YES Trigger -> Heading becomes 'iloveyou somuch lyncee' + .is-won floating hearts */
+      yesBtn.addEventListener('click', () => {
+        // Activate .content.is-won CSS class for floating hearts around cat
+        windowContent.classList.add('is-won');
+
+        // Update Title exactly as requested
+        mainTitle.innerHTML = 'iloveyou somuch lyncee 💕';
+        mainTitle.className = 'text-2xl sm:text-3xl font-bold text-rose-600 mb-5 leading-tight tracking-wide animate-pulse';
+
+        // Confetti effect
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 90,
+            spread: 80,
+            origin: { y: 0.6 },
+            colors: ['#ff758f', '#ff4d6d', '#ffb3c6', '#ffffff']
+          });
+        }
+
+        // Hide old buttons and reveal 'Read Love Letter' button
+        buttonArea.classList.add('hidden');
+        readLetterArea.classList.remove('hidden');
+        readLetterArea.classList.add('flex');
+      });
+
+      /* 5. Open Love Letter Modal */
+      openLetterBtn.addEventListener('click', () => {
+        letterModal.classList.remove('opacity-0', 'pointer-events-none');
+        letterCard.classList.remove('scale-90');
+        letterCard.classList.add('scale-100');
+      });
+
+      /* 6. Reply Section Interactivity */
+      replyNoBtn.addEventListener('mouseenter', () => dodgeNoButton(replyNoBtn));
+      replyNoBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        dodgeNoButton(replyNoBtn);
+      });
+
+      replyYesBtn.addEventListener('click', () => {
+        replyButtons.classList.add('hidden');
+        replyInputBox.classList.remove('hidden');
+        replyInputBox.classList.add('flex');
+      });
+
+      sendReplyBtn.addEventListener('click', () => {
+        const text = replyText.value.trim();
+        if (text) {
+          // Copy message to clipboard
+          const tempInput = document.createElement('textarea');
+          tempInput.value = text;
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          try {
+            document.execCommand('copy');
+          } catch(e) {}
+          document.body.removeChild(tempInput);
+        }
+
+        replyInputBox.classList.add('hidden');
+        replySentMsg.classList.remove('hidden');
+
+        // Confetti for replying
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 50,
+            spread: 60,
+            origin: { y: 0.7 }
+          });
+        }
+      });
+
+      closeModalBtn.addEventListener('click', () => {
+        letterModal.classList.add('opacity-0', 'pointer-events-none');
+        letterCard.classList.remove('scale-100');
+        letterCard.classList.add('scale-90');
+      });
+    });
+  </script>
+</body>
+</html>
